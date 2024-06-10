@@ -5,14 +5,9 @@ class TutorialDataService {
     return http.get("/calatorie")
     ;
   }
-
-
   getAllClienti(){
     return http.get("/clienti")
   }
-
-
-  
   getAllMedici(){
     return http.get("/medic")
   }
@@ -25,7 +20,6 @@ class TutorialDataService {
     return http.get(`/medic/${id}`);
   }
 
-  
   getClinica(id) {
     return http.get(`/clinica/${id}`);
   }
