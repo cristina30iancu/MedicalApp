@@ -24,6 +24,7 @@ import AddMedici from "./components/add-medici";
 import AfisareInfo from "./components/afisare-info";
 import EditMedic from "./components/edit-medic";
 import EditClinica from "./components/edit-clinica";
+import AddServicii from "./components/add-servicii";
 class App extends Component {
 
   constructor(props) {
@@ -135,6 +136,8 @@ class App extends Component {
             <PrivateRoutes path="/calatorie/:id" component={Tutorial} />
             <PrivateRoutes path="/clinica" component={AddClinica} />
             <PrivateRoutes path="/medici" component={AddMedici} />
+            <PrivateRoutes path="/detaliiServicii" component={AddServicii} />
+            <Route path="/detaliiServicii/:id" component={AddServicii} />
             <PrivateRoutes path="/afisareInfo" component={AfisareInfo} />
 
             <Route path="/login" component={Login} />

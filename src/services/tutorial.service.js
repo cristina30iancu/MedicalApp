@@ -34,16 +34,18 @@ class TutorialDataService {
   createClinica(data){
     return http.post("/clinica",data);
   }
-
+  createServiciu(data){
+    return http.post("/detalii/add/" +data.medicId,data);
+  }
   createMedic(data){
-    return http.post("/medic",data)
+    return http.post("/medic/" + data.clinicaId,data)
   }
   update(id, data) {
     return http.put(`/calatorie/${id}`, data);
   }
 
   updateMedic(id, data) {
-    return http.put(`/medic/${id}`, data);
+    return http.put(`/medic/${id}/clinica/${data.clinicaId}`, data);
   }
 
   updateClinica(id, data) {
@@ -58,7 +60,9 @@ class TutorialDataService {
   deleteMedic(id) {
     return http.delete(`/medic/${id}`);
   }
-
+  deleteDetaliiServiciu(id) {
+    return http.delete(`/detalii/delete/${id}`);
+  }
   deleteClinica(id) {
     return http.delete(`/clinica/${id}`);
   }
@@ -228,7 +232,18 @@ findByOraDisponibila(oraDisponibila){
     return http.get("/medic")
     ;
   }
-
+  getAllDetaliiServicii() {
+    return http.get("/detalii/all")
+    ;
+  }
+  getMedicDetaliiServicii(idMedic) {
+    return http.get("/detalii/medic/" + idMedic)
+    ;
+  }
+  getServiciuById(id) {
+    return http.get("/detalii/" + id)
+    ;
+  }
   getAllClinici(){
     return http.get("/clinica");
   

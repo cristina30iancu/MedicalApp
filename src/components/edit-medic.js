@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import TutorialDataService from "../services/tutorial.service";
 import '../components/custom.css'
 import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
 import Form from "react-validation/build/form";
+import Select from "react-validation/build/select";
 
 const required = value => {
   if (!value) {
@@ -23,12 +23,12 @@ const name = value => {
       </div>
     );
   }
-};  
+};
 const val = value => {
-  if ( value==0) {
+  if (value == 0) {
     return (
       <div className="alert alert-danger" role="alert">
-         The number  must be more then 0.
+        The number  must be more then 0.
       </div>
     );
   }
@@ -38,36 +38,25 @@ export default class EditMedic extends Component {
   constructor(props) {
     super(props);
     this.onChangeNumeMedic = this.onChangeNumeMedic.bind(this);
-    this.onChangeNumeConsult=this.onChangeNumeConsult.bind(this);
-    this.onChangeLocatie= this.onChangeLocatie.bind(this);
-    this.onChangeCostServiciu=this.onChangeCostServiciu.bind(this);
-    this.onChangeDurata=this.onChangeDurata.bind(this);
-    this.onChangeDataDisponibila=this.onChangeDataDisponibila.bind(this);
-    this.onChangeOraDisponibila=this.onChangeOraDisponibila.bind(this);
-    this.onChangeStare=this.onChangeStare.bind(this);
-
+   
     this.getTutorial = this.getTutorial.bind(this);
     this.updatePublished = this.updatePublished.bind(this);
     this.updateTutorial = this.updateTutorial.bind(this);
     this.deleteTutorial = this.deleteTutorial.bind(this);
+    this.onChangeClinica = this.onChangeClinica.bind(this);
+    this.getClinici = this.getClinici.bind(this);
 
     this.state = {
+      clinici: [],
+      clinicaId:"",
       currentTutorial: {
-       medicId: null,
-      idClinica:null,
-      numeMedic:0,
-      numeConsult:"",
-      locatie:"",
-      costServiciu: 0,
-      durata:0,
-      dataDisponibila:0,
-      oraDisponibila:"",
-      stare:"",
-      message:"kkk",
-      showModeratorBoard: false,
-      showAdminBoard: false,
-      currentUser: undefined,
-    
+        clinicaId: "",
+        medicId: null,
+        numeMedic: 0,
+        message: "kkk",
+        showModeratorBoard: false,
+        showAdminBoard: false,
+        currentUser: undefined,
       },
       message: ""
     };
@@ -76,21 +65,39 @@ export default class EditMedic extends Component {
   componentDidMount() {
     const { state } = this.props.location;
     const { medicId } = this.props.match.params;
-  
+    this.getClinici();
     if (state && state.tutorial) {
+      console.log(state.tutorial.clinica.clinicaId)
       this.setState({
-        currentTutorial: state.tutorial
+        currentTutorial: state.tutorial,
+        clinicaId: state.tutorial.clinica.clinicaId
       });
     } else {
       this.getTutorial(medicId);
     }
   }
-  
 
+  getClinici() {
+    TutorialDataService.getAllClinici()
+      .then(response => {
+        this.setState({
+          clinici: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+
+  onChangeClinica(e) {
+    this.setState({
+      clinicaId: e.target.value
+    });
+  }
   onChangeNumeMedic(e) {
     const numeMedic = e.target.value;
 
-    this.setState(function(prevState) {
+    this.setState(function (prevState) {
       return {
         currentTutorial: {
           ...prevState.currentTutorial,
@@ -99,94 +106,13 @@ export default class EditMedic extends Component {
       };
     });
   }
-  onChangeNumeConsult(e) {
-    const numeConsult = e.target.value;
-
-    this.setState(function(prevState) {
-      return {
-        currentTutorial: {
-          ...prevState.currentTutorial,
-          numeConsult: numeConsult
-        }
-      };
-    });
-  }
-
-  onChangeLocatie(e) {
-    const locatie = e.target.value;
-    
-    this.setState(prevState => ({
-      currentTutorial: {
-        ...prevState.currentTutorial,
-        locatie: locatie
-      }
-    }));
-  }
-  onChangeCostServiciu(e) {
-    const costServiciu = e.target.value;
-    
-    this.setState(prevState => ({
-      currentTutorial: {
-        ...prevState.currentTutorial,
-        costServiciu: costServiciu
-      }
-    }));
-  }
-  onChangeDurata(e) {
-    const durata = e.target.value;
-    
-    this.setState(prevState => ({
-      currentTutorial: {
-        ...prevState.currentTutorial,
-        durata: durata
-      }
-    }));
-  }
-
-
-  onChangeDataDisponibila(e) {
-    const dataDisponibila = e.target.value;
-    
-    this.setState(prevState => ({
-      currentTutorial: {
-        ...prevState.currentTutorial,
-        dataDisponibila: dataDisponibila
-      }
-    }));
-  }
-  onChangeOraDisponibila(e) {
-    const oraDisponibila = e.target.value;
-    
-    this.setState(prevState => ({
-      currentTutorial: {
-        ...prevState.currentTutorial,
-        oraDisponibila: oraDisponibila
-      }
-    }));
-  }
-
-  
-  onChangeStare(e) {
-    const stare = e.target.value;
-
-    this.setState(function(prevState) {
-      return {
-        currentTutorial: {
-          ...prevState.currentTutorial,
-          stare: stare
-        }
-      };
-    });
-  }
-
- 
-
 
   getTutorial(id) {
     TutorialDataService.getMedic(id)
       .then(response => {
         this.setState({
-          currentTutorial: response.data
+          currentTutorial: response.data,
+          clinicaId: response.data.clinica.clinicaId
         });
         console.log(response.data);
       })
@@ -199,18 +125,9 @@ export default class EditMedic extends Component {
     var data = {
       medicId: this.state.currentTutorial.medicId,
       numeMedic: this.state.currentTutorial.numeMedic,
-      numeConsult:this.state.currentTutorial.numeConsult,
-      locatie: this.state.currentTutorial.locatie,
-      costServiciu: this.state.currentTutorial.costServiciu,
-      durata:this.state.currentTutorial.durata,
-      dataDisponibila:this.state.currentTutorial.dataDisponibila,
-      oraDisponibila:this.state.currentTutorial.oraDisponibila,
-      stare:this.state.currentTutorial.stare
-
-  
-   
+      clinicaId: this.state.clinicaId,
     };
-
+console.log(data)
     TutorialDataService.updateMedic(this.state.currentTutorial.medicId, data)
       .then(response => {
         this.setState(prevState => ({
@@ -229,20 +146,24 @@ export default class EditMedic extends Component {
   updateTutorial() {
     const { medicId } = this.props.match.params; // Obține ID-ul tutorialului din URL
     const { currentTutorial } = this.state;
-  
-    TutorialDataService.updateMedic(medicId, currentTutorial)
+    var data = {
+      numeMedic: this.state.currentTutorial.numeMedic,
+      clinicaId: this.state.clinicaId,
+    };
+console.log(data)
+    TutorialDataService.updateMedic(medicId, data)
       .then(response => {
         console.log(response.data);
         this.props.history.push('/afisareInfo')
-        
+
       })
       .catch(e => {
         console.log(e);
       });
   }
-  
 
-  deleteTutorial() {    
+
+  deleteTutorial() {
     const { medicId } = this.props.match.params; // Obține ID-ul tutorialului din URL
     const { currentTutorial } = this.state;
     TutorialDataService.deleteMedic(medicId, currentTutorial)
@@ -256,193 +177,65 @@ export default class EditMedic extends Component {
   }
 
   render() {
-    const { currentTutorial } = this.state;
-
+    const { currentTutorial, clinicaId } = this.state;
+console.log(currentTutorial, clinicaId)
     return (
       <div>
         {currentTutorial ? (
           <div className="edit-form">
-           
+
             <Form
-            onSubmit={this.handleSubmit}
-            ref={c => {
-             this.form = c;
-           }}>
-            
-          <div>
-             <h4>Edit  Medic Information</h4>
-             <Form
-            onSubmit={this.handleSubmit}
-            ref={c => {
-             this.form = c;
-           }}>
-            <div className="form-group" style={{ marginTop: '60px' }}>
-  <label htmlFor="destinatie"> Nume Medic </label>
-  <Input
-  type="text"
-  className="form-control"
-  id="city"
-  required
-  value={currentTutorial.numeMedic}
-  onChange={this.onChangeNumeMedic}
-  name="city"
-/>
-</div>
-            <div className="form-group">  
-  <label htmlFor="destinatie"> Nume Consult</label>
-  <Input
-    type="text"
-    className="form-control"
-    id="adress"
-    required
-    value={currentTutorial.numeConsult}
-    onChange={this.onChangeNumeConsult}
-    name="adress"
-    
-  />
-</div>
-
-
-            <div className="form-group">
-              <label htmlFor="proprietate">Locatie</label>
-              <Input
-                type="text"
-                className="form-control"
-                id="phone"
-                required
-                value={currentTutorial.locatie}
-                onChange={this.onChangeLocatie}
-                
-                
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="dataPlecare">Cost Serviciu</label>
-              <Input
-                type="number"
-                className="form-control"
-                id="dataPlecare"
-                required
-                value={currentTutorial.costServiciu}
-                onChange={this.onChangeCostServiciu}
-                name="dataPlecare"
-
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="pret">Durata</label>
-              <Input
-                type="number"
-                className="form-control"
-                id="networks"
-                required
-                value={currentTutorial.durata}
-                onChange={this.onChangeDurata}
-                
-                
-
-              />
-            </div>
-
-            <div className="form-group">
-  <label htmlFor="pret">Data Disponibila</label>
-  <input
-    type="date"
-    className="form-control"
-    id="networks"
-    required
-    value={currentTutorial.dataDisponibila}
-    onChange={this.onChangeDataDisponibila}
-  />
-</div>
-
-
-
-            <div className="form-group">
-              <label htmlFor="pret">Ora Disponibila</label>
-              <Input
-                type="text"
-                className="form-control"
-                id="networks"
-                required
-                value={currentTutorial.oraDisponibila}
-                onChange={this.onChangeDataDisponibila}
-                
-                
-
-              />
-            </div>
-
-            
-            <div className="form-group">
-              <label htmlFor="pret">Stare</label>
-              <Input
-                type="text"
-                className="form-control"
-                id="networks"
-                required
-                value={currentTutorial.stare}
-                onChange={this.onChangeStare}
-                
-                
-
-              />
-            </div>
-            
-            
-
-           
-           
-            <CheckButton
-              style={{ display: "none" }}
+              onSubmit={this.handleSubmit}
               ref={c => {
-                this.checkBtn = c;
-              }}
-            />
-            
-            </Form>
-            
-            
+                this.form = c;
+              }}>
 
-        
-            
-          </div>
+              <div>
+                <h4>Editare medic</h4>
+                <Form
+                  onSubmit={this.handleSubmit}
+                  ref={c => {
+                    this.form = c;
+                  }}>
+                     <div className="form-group" style={{ marginTop: '60px' }}>
+                  <label htmlFor="clinicaId">Clinică</label>
+                  <Select
+                    name="clinicaId"
+                    className="form-control"
+                    id="clinicaId"
+                    value={clinicaId}
+                    onChange={this.onChangeClinica}
+                    validations={[required]}
+                  >
+                    <option value="">Alege o clinică</option>
+                    {this.state.clinici.map(clinica => (
+                      <option key={clinica.clinicaId} value={clinica.clinicaId}>{clinica.numeClinica}</option>
+                    ))}
+                  </Select>
+                </div>
+                  <div className="form-group" >
+                    <label htmlFor="destinatie"> Nume Medic </label>
+                    <Input
+                      type="text"
+                      className="form-control"
+                      id="city"
+                      required
+                      value={currentTutorial.numeMedic}
+                      onChange={this.onChangeNumeMedic}
+                      name="city"
+                    />
+                  </div>
+                </Form>
+              </div>
 
-              <CheckButton
-              style={{ display: "none" }}
-              ref={c => {
-                this.checkBtn = c;
-              }}
-            />
-
-              
             </Form>
 
-           {/* {currentTutorial.published ? (
-              <button
-                className="badge badge-primary mr-2"
-                onClick={() => this.updatePublished(false)}
-              >
-                Disponibil
-              </button>
-            ) : (
-              <button
-                className="badge badge-primary mr-2"
-                onClick={() => this.updatePublished(true)}
-              >
-                Rezervat
-              </button>
-            )}*/}
-
-            
             <button
               type="submit"
               className="badge badge-success"
               onClick={this.updateTutorial}
             >
-              Update
+              Salvează
             </button>
             <p>{this.state.message}</p>
           </div>
