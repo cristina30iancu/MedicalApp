@@ -28,7 +28,9 @@ class TutorialDataService {
     return http.post("/calatorie", data);
   }
   createclient(data) {
-    return http.post("/clienti", data);
+    const url = "/programari/user/" + data.utilizatorId + "/serviciu/" + data.detaliiId
+    console.log(url)
+    return http.post(url);
   }
 
   createClinica(data){

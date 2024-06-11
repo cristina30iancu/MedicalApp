@@ -4,6 +4,8 @@ import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 import AuthService from "../services/auth.service";
+import Select from "react-validation/build/select";
+
 const required = value => {
   if (!value) {
     return (
@@ -27,6 +29,15 @@ const rol = value => {
       return (
         <div className="alert alert-danger" role="alert">
           This is not a valid rol.
+        </div>
+      );
+    }
+  };
+  const telefon = value => {
+    if (!value || value.length != 10) {
+      return (
+        <div className="alert alert-danger" role="alert">
+          Dați un telefon valid.
         </div>
       );
     }
@@ -66,9 +77,11 @@ export default class Register extends Component {
     this.onChangeUsername = this.onChangeUsername.bind(this);
     this.onChangeRol = this.onChangeRol.bind(this);
     this.onChangeEmail = this.onChangeEmail.bind(this);
+    this.onChangeTelefon = this.onChangeTelefon.bind(this);
 
     this.onChangePassword = this.onChangePassword.bind(this);
     this.state = {
+      telefon: "",
       nume: "",
       username: "",
       rol:"",
@@ -98,6 +111,9 @@ export default class Register extends Component {
       rol: e.target.value
     });
   }
+  onChangeTelefon(e){
+    this.setState({telefon: e.target.value})
+  }
   onChangePassword(e) {
     this.setState({
       password: e.target.value
@@ -116,7 +132,7 @@ export default class Register extends Component {
         this.state.username,
         this.state.rol,
         this.state.email,
-        this.state.password
+        this.state.password, this.state.telefon
       ).then(
         () => {
           this.props.history.push("/login");
@@ -188,15 +204,26 @@ export default class Register extends Component {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="rol">Rol</label>
+                  <label htmlFor="telefon">Telefon</label>
                   <Input
                     type="text"
                     className="form-control"
-                    name="rol"
-                    value={this.state.rol}
-                    onChange={this.onChangeRol}
-                    validations={[required, rol]}
+                    name="telefon"
+                    value={this.state.telefon}
+                    onChange={this.onChangeTelefon}
+                    validations={[required, telefon]}
                   />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="rol">Rol</label>
+                  <Select name="role" className="form-control" 
+                  id="role" value={this.state.rol}
+                    onChange={this.onChangeRol}
+                    validations={[required, rol]}>
+                    <option value="">Select a role</option>
+                    <option value="USER">User (client)</option>
+                    <option value="ADMIN">Administrator</option>
+                  </Select>
                 </div>
                 <div className="form-group">
                   <label htmlFor="password">Password</label>
