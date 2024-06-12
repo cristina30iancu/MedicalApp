@@ -1,52 +1,40 @@
-import React,{ Component } from 'react';
-import {Pie, Doughnut} from 'react-chartjs-2';
-import 'chart.js/auto';
+import React, { Component } from 'react';
+import { Bar } from 'react-chartjs-2'; // Importăm componenta Bar
+import 'chart.js/auto'; // Importăm auto pentru configurarea Chart.js
 import TutorialDataService from "../services/tutorial.service";
-
 
 export default class Grafic extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      bilet: {
+      programariPeMedic: {
         labels: [],
         datasets: [
           {
-            label: 'Rainfall',
-            backgroundColor: 'rgba(75,192,192,1)',
-            borderColor: 'rgba(0,0,0,1)',
-            borderWidth: 2,
-            data: []
-          }
-        ]
-      },
-      rez: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Rainfall',
-            backgroundColor: 'rgba(75,192,192,1)',
+            label: 'Număr programări pe medic',
+            backgroundColor: 'rgba(75,192,192,0.6)', // Culoare pentru barele din grafic
             borderColor: 'rgba(0,0,0,1)',
             borderWidth: 2,
             data: []
           }
         ]
       }
-      
-    }
+    };
   }
 
   componentDidMount() {
-    TutorialDataService.getGrafic()
+    // Fetch data for the number of appointments per doctor
+    TutorialDataService.getGraficProgramariPeMedic()
       .then(response => {
+        const medicNume = Object.keys(response.data);
+        const programariCount = Object.values(response.data);
+
         this.setState({
-          bilet: {
-            labels: Object.keys(response.data),
+          programariPeMedic: {
+            labels: medicNume,
             datasets: [
               {
-                label: 'Rainfall',
-                borderWidth: 2,
-              
+                label: 'Număr programări pe medic',
                 backgroundColor: [
                   '#fadadd',
                   '#ad4379',
@@ -54,58 +42,13 @@ export default class Grafic extends Component {
                   '#a75b78',
                   '#6800B4'
                 ],
-                hoverBackgroundColor: [
-                '#6d956f',
-                '#4B5000',
-                '#175000',
-                '#003350',
-                '#35014F'
-                ],
-                data: Object.values(response.data)
-              }
-            ]
-          }
-        });
-        Object.entries(response.data).map(([key, value]) => {
-          console.log(key + "  asdf " + value);
-        })
-      })
-      .catch(e => {
-        console.log(e);
-      });
-
-      TutorialDataService.getGraficClient()
-      .then(response => {
-        this.setState({
-          rez: {
-            labels: Object.keys(response.data),
-            datasets: [
-              {
-                label: 'Rainfall',
+                borderColor: 'rgba(0,0,0,1)',
                 borderWidth: 2,
-              
-                backgroundColor: [
-                  '#fadadd',
-                  '#800080',
-                  '#894852',
-                  '#a75b78',
-                  '#BB8FCE'
-                ],
-                hoverBackgroundColor: [
-                '#6d956f',
-                '#4B5000',
-                '#175000',
-                '#003350',
-                '#35014F'
-                ],
-                data: Object.values(response.data)
+                data: programariCount
               }
             ]
           }
         });
-        Object.entries(response.data).map(([key, value]) => {
-          console.log(key + "  baaa " + value);
-        })
       })
       .catch(e => {
         console.log(e);
@@ -113,55 +56,34 @@ export default class Grafic extends Component {
   }
 
   render() {
+    const { programariPeMedic } = this.state;
 
-    const { bilet } = this.state;
-    const{rez}=this.state;
     return (
-      <div  style={{ color: "black ",  position:'absolute',top:"60px", right:"100px", width:"450px", height:"500px",left:"550px"}}>
-        <div    >
-          <div className='card-title '
-                style={{  marginLeft :"130px"}}
-                > Numar rezervari pe destinatii </div>
-         < Pie 
-          data={bilet}
-          options={{
-            title:{
-              display:true,
-             // text:'Average Rainfall per month',
-              fontSize:10
-              
-            },
-            
-            legend:{
-              display:true,
-              position:'right'
-            }
-          }}
-          strokeWidth={0.2} 
-          outerRadius={30}
-        />
-       <div className='card-title '
-                style={{  marginLeft :"150px", marginTop:"20px"}}
-                > Numar rezervari clienti </div>
-        <Doughnut
-          data={rez}
-          options={{
-            title:{
-              display:true,
-              text:'Average Rainfall per month',
-              fontSize:10
-            },
-            legend:{
-              display:true,
-              position:'right'
-            }
-          }}
-          // width={20}
-          // height={20}
-          strokeWidth={0.2} 
-          outerRadius={30}
-        />
-      </div>
+      <div style={{ color: "black", position: 'absolute', top: "10vh", right: "5vw", width: "70vw", height: "90vh", left: "5vw" }}>
+        <div>
+          <div className='card-title' style={{ marginLeft: "130px" }}>
+            Număr programări pe medic
+          </div>
+          <Bar
+            data={programariPeMedic} // Datele pentru grafic
+            options={{
+              title: {
+                display: true,
+                text: 'Număr programări pe medic',
+                fontSize: 26
+              },
+              legend: {
+                display: true,
+                position: 'top' // Poziționarea legendei
+              },
+              scales: {
+                y: {
+                  beginAtZero: true // Asigură că axa Y începe de la 0
+                }
+              }
+            }}
+          />
+        </div>
       </div>
     );
   }

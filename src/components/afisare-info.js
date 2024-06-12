@@ -264,7 +264,7 @@ class AfisareInfo extends React.Component {
                     <tr key={index}>
                       <td>{detaliu.numeConsult}</td>
                       <td>{detaliu.medic ? detaliu.medic.numeMedic : 'No Medic'}</td>
-                      <td>{detaliu.medic.clinica.numeClinica}</td>
+                      <td>{detaliu.medic?.clinica?.numeClinica}</td>
                       <td>{detaliu.costServiciu + " RON"}</td>
                       <td>{detaliu.durata}</td>
                       <td>{new Date(detaliu.dataDisponibila).toLocaleDateString()}</td>

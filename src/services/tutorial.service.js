@@ -32,6 +32,9 @@ class TutorialDataService {
     console.log(url)
     return http.post(url);
   }
+  getGraficProgramariPeMedic() {
+    return http.get("programari/medici");
+  }
   getProgramari(id){
     return http.get(`/programari/user/${id}`)
   }

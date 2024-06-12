@@ -194,38 +194,64 @@ export class TutorialsList extends Component {
     };
   }
 
+  handleRetry = () => {
+    this.setState({
+      submitted: false,
+      successful: false,
+      message: ""
+    });
+  };
+
   saveClient(e, tutorial) {
+    e.preventDefault(); // Previne comportamentul implicit al formularului
+
     var data = {
       detaliiId: tutorial.detaliiId,
       utilizatorId: this.state.currentUser.utilizatorId
     };
-    console.log("data", data)
+
+    console.log("data", data);
+
     TutorialDataService.createclient(data)
       .then(response => {
-        // Actualizează starea clientului pentru a indica succesul
-        this.setState(prevState => ({
-          numeClient: response.data.numeClient,
-          telefonClient: response.data.telefonClient,
-          emailClient: response.data.emailClient,
-          submitted: true,
-          successful: true,
-          saveCount: prevState.saveCount + 1 // Incrementarea numărului de salvări
-        }));
-
-        // Actualizează medicul pentru a-l face indisponibil
-        // this.updateTutorial();
-
-        console.log(response.data);
+        if (response.status === 201) {
+          // Dacă răspunsul este creat cu succes (201), afișează mesajul de succes
+          this.setState(prevState => ({
+            numeClient: response.data.numeClient,
+            telefonClient: response.data.telefonClient,
+            emailClient: response.data.emailClient,
+            submitted: true,
+            successful: true,
+            saveCount: prevState.saveCount + 1
+          }));
+          console.log(response.data);
+        } else {
+          // Dacă răspunsul nu este un 201, tratează-l ca o eroare
+          this.setState({
+            submitted: true,
+            successful: false,
+            message: response.data.message || "A apărut o eroare la salvarea rezervării."
+          });
+        }
       })
-      .catch(e => {
-        console.log(e);
-        // În caz de eroare, poți trata și afișa un mesaj de eroare aici
+      .catch(error => {
+        console.log(error);
+
+        let errorMessage = "Nu te poți programa deoarece nu ești disponibil!";
+        if (error.response && error.response.data && error.response.data.message) {
+          console.error(error.response.data.message)
+        } else if (error.message) {
+          console.error(error.message)
+        }
+
         this.setState({
+          submitted: true,
           successful: false,
-          message: "A apărut o eroare la salvarea rezervării."
+          message: errorMessage
         });
       });
   }
+
 
 
   componentDidMount() {
@@ -492,6 +518,17 @@ export class TutorialsList extends Component {
           tutorials: response.data
         });
         console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+
+      TutorialDataService.getGraficProgramariPeMedic()
+      .then(response => {
+        this.setState({
+          salvari: response.data
+        });
+       
       })
       .catch(e => {
         console.log(e);
@@ -1202,7 +1239,9 @@ export class TutorialsList extends Component {
 
 
   render() {
-    const { searchNumeConsult, searchLocatia, searchDataDisponibila, showAdminBoard, showModeratorBoard, tutorials, currentTutorial, currentIndex } = this.state;
+    const { submitted, currentUser, successful, message,
+      searchNumeConsult, searchLocatia, searchDataDisponibila, showAdminBoard,
+      showModeratorBoard, tutorials, currentTutorial, currentIndex } = this.state;
     console.log(tutorials)
     // Filtrarea tutorialelor după criteriile de căutare
     const filteredTutorials = tutorials?.filter(tutorial => {
@@ -1212,8 +1251,8 @@ export class TutorialsList extends Component {
         const matchesLocation = searchLocatia ? (tutorial?.medic?.clinica?.locatie?.toLowerCase().includes(searchLocatia.toLowerCase()) ||
           tutorial?.medic?.clinica?.numeClinica.toLowerCase().includes(searchLocatia.toLowerCase())) : true;
         const matchesDate = searchDataDisponibila ? tutorial?.dataDisponibila === searchDataDisponibila : true;
-        console.log(matchesSpeciality, matchesLocation, matchesDate)
-        return matchesSpeciality && matchesLocation && matchesDate && ["Disponibil", "Anulat"].includes(tutorial.stare);
+        console.log(matchesSpeciality, matchesLocation, matchesDate, (showAdminBoard || ["Disponibil", "Anulat"].includes(tutorial.stare)))
+        return matchesSpeciality && matchesLocation && matchesDate && (showAdminBoard || ["Disponibil", "Anulat"].includes(tutorial.stare));
       }
       return false;
     });
@@ -1366,21 +1405,36 @@ export class TutorialsList extends Component {
                     </div>
                   </form>
                   <div>
+                    <div>
+                      {showModeratorBoard && (
+                        <Popup
+                          trigger={<Button style={{ color: "light", marginTop: "10px", boxShadow: "5px 5px 3px rgba(46, 46, 46, 0.62)" }} className="btn btn-dark btn-circle">Programeaza-te</Button>}
+                          position="left center"
+                          closeOnDocumentClick
+                        >
+                          <div className="card">
+                            <div className="card-title"></div>
 
-                    {showModeratorBoard && (
-                      <Popup
-                        trigger={<Button style={{ color: "light", marginTop: "10px", boxShadow: "5px 5px 3px rgba(46, 46, 46, 0.62)" }} className="btn btn-dark btn-circle">Programeaza-te</Button>}
-                        position="left center"
-                      >
-                        <div className="card">
-                          <div className="card-title"></div>
-                          {!this.state.successful && (
-                            <div>
-                              <Form
-                                onSubmit={this.handleSubmit}
-                                ref={(c) => { this.form = c; }}
-                              >
-                                {!this.state.successful && (
+                            {submitted ? (
+                              <div>
+                                {successful ? (
+                                  <div>
+                                    <p style={{ color: "green" }}>Programare a fost realizată cu succes!</p>
+                                    <Button onClick={this.handleRetry} className="btn btn-dark">Înapoi</Button>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <p style={{ color: "red" }}>{message}</p>
+                                    <Button onClick={this.handleRetry} className="btn btn-dark">Înapoi</Button>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div>
+                                <Form
+                                  onSubmit={(e) => this.saveClient(e, tutorial)}
+                                  ref={(c) => { this.form = c; }}
+                                >
                                   <div>
                                     <div className="form-group">
                                       <label htmlFor="numeClient">
@@ -1391,10 +1445,9 @@ export class TutorialsList extends Component {
                                         className="form-control"
                                         id="numeClient"
                                         required
-                                        value={this.state.currentUser.username}
+                                        value={currentUser.username}
                                         readOnly
                                         name="numeClient"
-                                        validations={[required, name]}
                                       />
                                     </div>
                                     <div className="form-group">
@@ -1406,10 +1459,9 @@ export class TutorialsList extends Component {
                                         className="form-control"
                                         id="email"
                                         required
-                                        value={this.state.currentUser.email}
+                                        value={currentUser.email}
                                         readOnly
                                         name="email"
-                                        validations={[required, email]}
                                       />
                                     </div>
                                     <div className="form-group">
@@ -1421,54 +1473,29 @@ export class TutorialsList extends Component {
                                         className="form-control"
                                         id="telefon"
                                         required
-                                        value={this.state.currentUser.telefon}
+                                        value={currentUser.telefon}
                                         readOnly
                                         name="telefon"
-                                        validations={[required, tel]}
                                       />
                                     </div>
                                     <button
                                       style={{ color: "white", margin: "5%", boxShadow: "5px 5px 3px rgba(46, 46, 46, 0.62)" }}
-                                      onClick={(e) => { this.saveClient(e, tutorial); }}
                                       className="btn btn-dark"
                                     >
                                       Salvare
                                     </button>
-                                    {/* <p>{this.state.message}</p> */}
-                                    {this.state.successful && ( // Afiseaza mesajul de succes daca programarea a fost realizata cu succes
-                                      // <div>
-                                      //   <p style={{ color: "green" }}>Programare a fost realizată cu succes!</p>
-                                      // </div>
-
-                                      <div>
-                                        <p style={{ color: "green" }}>Programare a fost realizată cu succes!</p>
-                                      </div>)}
                                   </div>
-                                )}
-
-                                <CheckButton style={{ display: "none" }} ref={(c) => { this.checkBtn = c; }} />
-                              </Form>
-                            </div>
-                          )}
-
-                          {this.state.successful && ( // Afiseaza mesajul de succes daca programarea a fost realizata cu succes
-                            // <div>
-                            //   <p style={{ color: "green" }}>Programare a fost realizată cu succes!</p>
-                            // </div>
-
-                            <div>
-                              <p style={{ color: "green" }}>Programare a fost realizată cu succes!</p>
-                            </div>
-
-
-                          )}
-                        </div>
-                      </Popup>
-                    )}
-                    <div>
-                      <p>Numărul de salvări: {this.state.saveCount}</p>
-                      {/* Restul codului tău pentru componenta */}
+                                  <CheckButton style={{ display: "none" }} ref={(c) => { this.checkBtn = c; }} />
+                                </Form>
+                              </div>
+                            )}
+                          </div>
+                        </Popup>
+                      )}
                     </div>
+                    {showAdminBoard && <div>
+                      <p>Numărul de programări al medicului: {this.state.salvari[tutorial?.medic?.numeMedic]}</p>
+                    </div>}
                   </div>
                 </div>
               </div>
