@@ -32,7 +32,9 @@ class TutorialDataService {
     console.log(url)
     return http.post(url);
   }
-
+  getProgramari(id){
+    return http.get(`/programari/user/${id}`)
+  }
   createClinica(data){
     return http.post("/clinica",data);
   }

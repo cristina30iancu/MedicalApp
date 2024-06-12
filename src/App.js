@@ -25,6 +25,7 @@ import AfisareInfo from "./components/afisare-info";
 import EditMedic from "./components/edit-medic";
 import EditClinica from "./components/edit-clinica";
 import AddServicii from "./components/add-servicii";
+import Programari from "./components/programari-user";
 class App extends Component {
 
   constructor(props) {
@@ -72,9 +73,10 @@ class App extends Component {
 
         <div id="mySidenav" class="sidenav">
           <a href="#" className="closebtn" onClick={this.closeNav}>&times;</a>
-          <a href="#"><Link to={"/paginadestart"}>Home </Link></a>
-          <a href="#"> <Link to={"/about-us"}>About us</Link></a>
+          <a href="#"><Link to={"/paginadestart"}>Acasă </Link></a>
+          <a href="#"> <Link to={"/about-us"}>Despre noi</Link></a>
           <a href="#"><Link to={"/calatorie"}> Programare </Link></a>
+          {showModeratorBoard && <a href="#"><Link to={"/programari"}> Programările mele </Link></a>}
           {/* {showAdminBoard && (<a href="#"> <Link to={"/medici"}>Creare profil medici</Link></a>)}
 {showAdminBoard && (<a href="#"> <Link to={"/clinica"}>Creare profil clinica</Link></a>)} */}
           {showAdminBoard && (<a href="#"> <Link to={"/afisareInfo"}>Information</Link></a>)}
@@ -134,6 +136,7 @@ class App extends Component {
             <PrivateRoutes exact path={["/", "/calatorie"]} component={TutorialsList} />
             <PrivateRoutes exact path="/add" component={AddSejur} />
             <PrivateRoutes path="/calatorie/:id" component={Tutorial} />
+            <PrivateRoutes path="/programari" component={Programari} />
             <PrivateRoutes path="/clinica" component={AddClinica} />
             <PrivateRoutes path="/medici" component={AddMedici} />
             <PrivateRoutes path="/detaliiServicii" component={AddServicii} />
