@@ -6,7 +6,7 @@ class TutorialDataService {
     ;
   }
   getAllClienti(){
-    return http.get("/clienti")
+    return http.get("/programari/utilizatori")
   }
   getAllMedici(){
     return http.get("/medic")
@@ -43,6 +43,9 @@ class TutorialDataService {
   }
   createServiciu(data){
     return http.post("/detalii/add/" +data.medicId,data);
+  }
+  updateServiciu(id,data){
+    return http.put("/detalii/update/" + id ,data);
   }
   createMedic(data){
     return http.post("/medic/" + data.clinicaId,data)
@@ -233,7 +236,6 @@ findByOraDisponibila(oraDisponibila){
     return http.get("/graficClient")
 
   }
-
 
   getAllPersonal() {
     return http.get("/medic")

@@ -78,7 +78,7 @@ class App extends Component {
           <a href="#"><Link to={"/calatorie"}> Programare </Link></a>
           {showModeratorBoard && <a href="#"><Link to={"/programari"}> Programările mele </Link></a>}
           {showAdminBoard && (<a href="#"> <Link to={"/afisareInfo"}>Informații clinică</Link></a>)}
-          {showAdminBoard && (<a href="#"> <Link to={"/clientiDate"}>Client</Link></a>)}
+          {showAdminBoard && (<a href="#"> <Link to={"/clientiDate"}>Clienți</Link></a>)}
           {showAdminBoard && (<a href="#"> <Link to={"/grafic"}> Grafic </Link></a>)}
 
         </div>

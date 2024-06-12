@@ -243,7 +243,8 @@ export default class AddServicii extends Component {
   }
 
   saveServiciu() {
-    const { id } = this.props.match.params;
+    const parts = window.location.href.split("/");
+    const id = parseInt(parts[parts.length -1]);
     const data = {
       medicId: this.state.medicId,
       numeConsult: this.state.numeConsult,

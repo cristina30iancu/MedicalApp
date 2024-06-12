@@ -27,3 +27,9 @@
 
 
 - adaugare programare client prin legare programare de client si serviciu, cu stergere. (front si back) - da
+
+- filtrare la servicii - da
+- editarea in momentul in care editez ceva mi se Creează un nou serviciu , in loc sa mi se editeze (ultimul tabel) - da
+- verifica căutarea la utilizator - da
+- la pagina client nu îmi apare nimic, trebuia sa îmi apăra in momentul in care eu ma programm la un medic - da 
+- ștergea , daca e programat nu mi se șterge
